@@ -1,0 +1,116 @@
+/* G3r4ki Dashboard Styles */
+
+body {
+    background-color: #f8f9fa;
+}
+
+/* Legend styles */
+.legend-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+/* Network graph styles */
+.node {
+    stroke: #fff;
+    stroke-width: 1.5px;
+    cursor: pointer;
+}
+
+.link {
+    stroke: #999;
+    stroke-opacity: 0.6;
+}
+
+.tooltip {
+    position: absolute;
+    text-align: left;
+    width: auto;
+    height: auto;
+    padding: 8px;
+    font: 12px sans-serif;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Node details modal styles */
+.node-detail-item {
+    margin-bottom: 15px;
+}
+
+.node-detail-label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* Status indicators */
+.status-open {
+    color: #198754;
+    font-weight: bold;
+}
+
+.status-closed {
+    color: #dc3545;
+}
+
+.status-filtered {
+    color: #ffc107;
+}
+
+/* Vulnerability severity indicators */
+.vuln-high {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.vuln-medium {
+    color: #fd7e14;
+    font-weight: bold;
+}
+
+.vuln-low {
+    color: #ffc107;
+}
+
+/* Dashboard card styles */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 0.75rem 1.25rem;
+}
+
+/* Button styles */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.2rem;
+}
+
+/* Modal styles */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* List styles */
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 0.75rem 1.25rem;
+}

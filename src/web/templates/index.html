@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G3r4ki - Cyber LLM War Machine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="G3r4ki Logo">
+                <h1>G3r4ki</h1>
+            </div>
+            <div class="tagline">Cyber LLM War Machine</div>
+        </header>
+        
+        <nav>
+            <ul>
+                <li><a href="#dashboard" class="active" data-tab="dashboard">Dashboard</a></li>
+                <li><a href="#ai-assistant" data-tab="ai-assistant">AI Assistant</a></li>
+                <li><a href="#pentest" data-tab="pentest">Penetration Testing</a></li>
+                <li><a href="#agents" data-tab="agents">Agents</a></li>
+                <li><a href="#tools" data-tab="tools">Tools</a></li>
+                <li><a href="#settings" data-tab="settings">Settings</a></li>
+            </ul>
+        </nav>
+        
+        <main>
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="tab-content active">
+                <h2>Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>System Status</h3>
+                        <div class="status-indicator online">
+                            <span class="dot"></span>
+                            <span class="status">Online</span>
+                        </div>
+                        <div class="card-content">
+                            <p>G3r4ki is operational and ready to assist with cybersecurity operations.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>AI Providers</h3>
+                        <div class="card-content">
+                            <ul class="provider-list">
+                                {% for provider in available_providers %}
+                                <li class="provider-item">
+                                    <span class="provider-name">{{ provider }}</span>
+                                    <span class="provider-status available">Available</span>
+                                </li>
+                                {% else %}
+                                <li class="provider-item">
+                                    <span class="provider-name">No AI providers available</span>
+                                    <span class="provider-status unavailable">Unavailable</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>Active Agents</h3>
+                        <div class="card-content">
+                            <div id="agent-count">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>Quick Actions</h3>
+                        <div class="card-content">
+                            <div class="action-buttons">
+                                <button class="action-btn" data-action="create-agent">Create Agent</button>
+                                <button class="action-btn" data-action="generate-shell">Generate Shell</button>
+                                <button class="action-btn" data-action="run-scan">Run Scan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- AI Assistant Section -->
+            <section id="ai-assistant" class="tab-content">
+                <h2>AI Assistant</h2>
+                <div class="ai-container">
+                    <div class="ai-sidebar">
+                        <h3>AI Providers</h3>
+                        <div class="provider-selection">
+                            {% for provider in available_providers %}
+                            <div class="provider-option">
+                                <input type="radio" name="ai-provider" id="provider-{{ provider }}" value="{{ provider }}" {% if loop.first %}checked{% endif %}>
+                                <label for="provider-{{ provider }}">{{ provider }}</label>
+                            </div>
+                            {% endfor %}
+                            <div class="provider-option">
+                                <input type="radio" name="ai-provider" id="provider-all" value="all">
+                                <label for="provider-all">Compare All</label>
+                            </div>
+                        </div>
+                        
+                        <h3>System Prompt</h3>
+                        <textarea id="system-prompt" placeholder="Optional system instructions...">You are G3r4ki, an AI cybersecurity assistant. You help with penetration testing, vulnerability assessment, and security analysis.</textarea>
+                    </div>
+                    
+                    <div class="ai-chat">
+                        <div id="chat-messages" class="chat-messages"></div>
+                        
+                        <div class="chat-input">
+                            <textarea id="user-prompt" placeholder="Ask me about cybersecurity..."></textarea>
+                            <button id="send-prompt" class="send-btn">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Penetration Testing Section -->
+            <section id="pentest" class="tab-content">
+                <h2>Penetration Testing</h2>
+                
+                <div class="pentest-tabs">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" data-pentest-tab="shells">Reverse Shells</button>
+                        <button class="tab-btn" data-pentest-tab="enum">Enumeration</button>
+                        <button class="tab-btn" data-pentest-tab="privesc">Privilege Escalation</button>
+                        <button class="tab-btn" data-pentest-tab="scan">Network Scanning</button>
+                    </div>
+                    
+                    <div class="pentest-tab-content">
+                        <!-- Reverse Shells Tab -->
+                        <div id="shells" class="pentest-tab active">
+                            <h3>Reverse Shell Generator</h3>
+                            
+                            <div class="shell-generator">
+                                <div class="generator-form">
+                                    <div class="form-group">
+                                        <label for="shell-type">Shell Type</label>
+                                        <select id="shell-type">
+                                            <option value="" disabled selected>Select Shell Type</option>
+                                            <!-- Will be populated dynamically -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="shell-variant">Variant</label>
+                                        <select id="shell-variant" disabled>
+                                            <option value="" disabled selected>Select Variant</option>
+                                            <!-- Will be populated dynamically -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="shell-ip">IP Address</label>
+                                        <input type="text" id="shell-ip" placeholder="Auto-detect">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="shell-port">Port</label>
+                                        <input type="number" id="shell-port" value="4444">
+                                    </div>
+                                    
+                                    <button id="generate-shell-btn" class="primary-btn">Generate Shell</button>
+                                </div>
+                                
+                                <div class="generated-shell">
+                                    <h4>Generated Shell</h4>
+                                    <pre id="shell-output">
+                                        <code>Select a shell type and variant to generate a command.</code>
+                                    </pre>
+                                    <div class="shell-actions">
+                                        <button id="copy-shell-btn" class="secondary-btn" disabled>Copy to Clipboard</button>
+                                        <button id="save-shell-btn" class="secondary-btn" disabled>Save to File</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Enumeration Tab -->
+                        <div id="enum" class="pentest-tab">
+                            <h3>System Enumeration</h3>
+                            <p>This section provides tools for enumerating target systems.</p>
+                            
+                            <div class="under-construction">
+                                <p>This feature is under development.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Privilege Escalation Tab -->
+                        <div id="privesc" class="pentest-tab">
+                            <h3>Privilege Escalation</h3>
+                            <p>Tools and techniques for privilege escalation on various systems.</p>
+                            
+                            <div class="under-construction">
+                                <p>This feature is under development.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Network Scanning Tab -->
+                        <div id="scan" class="pentest-tab">
+                            <h3>Network Scanning</h3>
+                            <p>Scan networks and discover vulnerabilities.</p>
+                            
+                            <div class="under-construction">
+                                <p>This feature is under development.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Agents Section -->
+            <section id="agents" class="tab-content">
+                <h2>Agent Management</h2>
+                
+                <div class="agent-operations">
+                    <div class="agent-list-container">
+                        <h3>Active Agents</h3>
+                        <div id="agent-list" class="agent-list">
+                            <div class="loading">Loading agents...</div>
+                        </div>
+                        
+                        <button id="refresh-agents-btn" class="secondary-btn">Refresh</button>
+                    </div>
+                    
+                    <div class="agent-creator">
+                        <h3>Create New Agent</h3>
+                        
+                        <div class="agent-form">
+                            <div class="form-group">
+                                <label for="agent-type">Agent Type</label>
+                                <select id="agent-type">
+                                    <option value="" disabled selected>Select Agent Type</option>
+                                    <!-- Will be populated dynamically -->
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="agent-name">Agent Name</label>
+                                <input type="text" id="agent-name" placeholder="Enter agent name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="agent-description">Description</label>
+                                <textarea id="agent-description" placeholder="Optional description"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="agent-target">Target (Optional)</label>
+                                <input type="text" id="agent-target" placeholder="IP, domain, or URL">
+                            </div>
+                            
+                            <button id="create-agent-btn" class="primary-btn">Create Agent</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Tools Section -->
+            <section id="tools" class="tab-content">
+                <h2>Security Tools</h2>
+                
+                <div class="tools-container">
+                    <div class="tools-sidebar">
+                        <h3>Categories</h3>
+                        <ul class="tool-categories">
+                            <li data-category="recon" class="active">Reconnaissance</li>
+                            <li data-category="remote_access">Remote Access</li>
+                            <li data-category="defensive">Defensive</li>
+                            <li data-category="automation">Automation</li>
+                            <li data-category="offensive">Offensive</li>
+                            <li data-category="data_analysis">Data Analysis</li>
+                            <li data-category="linux_admin">Linux Admin</li>
+                            <li data-category="threat_intel">Threat Intel</li>
+                            <li data-category="red_team">Red Team</li>
+                        </ul>
+                        
+                        <div class="tool-actions">
+                            <button id="scan-tools-btn" class="secondary-btn">Scan Installed Tools</button>
+                        </div>
+                    </div>
+                    
+                    <div class="tools-content">
+                        <div id="tool-list" class="tool-list">
+                            <div class="loading">Loading tools...</div>
+                        </div>
+                        
+                        <div class="terminal-container">
+                            <h3>Terminal</h3>
+                            <div id="terminal" class="terminal"></div>
+                            
+                            <div class="terminal-input">
+                                <input type="text" id="command-input" placeholder="Enter command...">
+                                <button id="run-command-btn" class="secondary-btn">Run</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Settings Section -->
+            <section id="settings" class="tab-content">
+                <h2>Settings</h2>
+                
+                <div class="settings-container">
+                    <div class="settings-group">
+                        <h3>API Keys</h3>
+                        
+                        <div class="form-group">
+                            <label for="openai-api-key">OpenAI API Key</label>
+                            <div class="key-input">
+                                <input type="password" id="openai-api-key" placeholder="API Key" value="********">
+                                <button class="toggle-visibility-btn">Show</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="anthropic-api-key">Anthropic API Key</label>
+                            <div class="key-input">
+                                <input type="password" id="anthropic-api-key" placeholder="API Key" value="********">
+                                <button class="toggle-visibility-btn">Show</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="deepseek-api-key">DeepSeek API Key</label>
+                            <div class="key-input">
+                                <input type="password" id="deepseek-api-key" placeholder="API Key" value="********">
+                                <button class="toggle-visibility-btn">Show</button>
+                            </div>
+                        </div>
+                        
+                        <p class="note">Note: API keys are stored in the .env file and will not be exposed here for security reasons.</p>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3>Interface Settings</h3>
+                        
+                        <div class="form-group">
+                            <label for="theme-select">Theme</label>
+                            <select id="theme-select">
+                                <option value="dark">Dark Theme</option>
+                                <option value="light">Light Theme</option>
+                                <option value="system">System Preference</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="enable-animations" checked>
+                                Enable Animations
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2025 G3r4ki - AI-powered Linux system for cybersecurity operations</p>
+                <div class="version">Version 0.1.0</div>
+            </div>
+        </footer>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

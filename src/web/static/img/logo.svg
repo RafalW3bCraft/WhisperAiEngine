@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .main-color { fill: #00cc66; }
+    .accent-color { fill: #009966; }
+    .highlight { fill: #33ff99; }
+  </style>
+  <g>
+    <!-- Circuit board base with hexagonal pattern -->
+    <path class="accent-color" d="M64,8 L112,32 L112,96 L64,120 L16,96 L16,32 Z" />
+    
+    <!-- G3r4ki stylized text overlay -->
+    <path class="main-color" d="M42,44 L42,60 L32,60 L32,44 L42,44 Z" />
+    <path class="main-color" d="M32,60 L32,76 L52,76 L52,68 L42,68 L42,60 L32,60 Z" />
+    <path class="main-color" d="M58,44 L58,76 L66,76 L66,60 L74,60 L74,76 L82,76 L82,44 L58,44 Z" />
+    <path class="main-color" d="M90,44 L90,68 L98,68 L98,76 L90,76 L90,84 L106,84 L106,44 Z" />
+    
+    <!-- Circuit traces -->
+    <path class="highlight" d="M32,40 L42,40 L42,44 L32,44 Z" />
+    <path class="highlight" d="M58,40 L82,40 L82,44 L58,44 Z" />
+    <path class="highlight" d="M90,40 L106,40 L106,44 L90,44 Z" />
+    <path class="highlight" d="M52,76 L52,84 L42,84 L42,76 Z" />
+    <path class="highlight" d="M66,76 L66,84 L74,84 L74,76 Z" />
+    
+    <!-- Nodes and connections -->
+    <circle class="highlight" cx="32" cy="40" r="3" />
+    <circle class="highlight" cx="42" cy="84" r="3" />
+    <circle class="highlight" cx="58" cy="40" r="3" />
+    <circle class="highlight" cx="82" cy="40" r="3" />
+    <circle class="highlight" cx="90" cy="40" r="3" />
+    <circle class="highlight" cx="106" cy="40" r="3" />
+    <circle class="highlight" cx="52" cy="84" r="3" />
+    <circle class="highlight" cx="66" cy="84" r="3" />
+    <circle class="highlight" cx="74" cy="84" r="3" />
+  </g>
+</svg>

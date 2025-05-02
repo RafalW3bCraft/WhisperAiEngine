@@ -1,0 +1,175 @@
+{
+  "suid_files": [
+    {
+      "file": "/usr/bin/mount",
+      "filename": "mount",
+      "permissions": "-rwsr-xr-x",
+      "owner": "root",
+      "group": "root",
+      "size": "55528",
+      "is_exploitable": false,
+      "exploit_info": ""
+    },
+    {
+      "file": "/usr/bin/passwd",
+      "filename": "passwd",
+      "permissions": "-rwsr-xr-x",
+      "owner": "root",
+      "group": "root",
+      "size": "68208",
+      "is_exploitable": false,
+      "exploit_info": ""
+    },
+    {
+      "file": "/usr/bin/umount",
+      "filename": "umount",
+      "permissions": "-rwsr-xr-x",
+      "owner": "root",
+      "group": "root",
+      "size": "39144",
+      "is_exploitable": false,
+      "exploit_info": ""
+    },
+    {
+      "file": "/usr/bin/chfn",
+      "filename": "chfn",
+      "permissions": "-rwsr-xr-x",
+      "owner": "root",
+      "group": "root",
+      "size": "85064",
+      "is_exploitable": false,
+      "exploit_info": ""
+    },
+    {
+      "file": "/usr/bin/chsh",
+      "filename": "chsh",
+      "permissions": "-rwsr-xr-x",
+      "owner": "root",
+      "group": "root",
+      "size": "53040",
+      "is_exploitable": false,
+      "exploit_info": ""
+    },
+    {
+      "file": "/usr/bin/newgrp",
+      "filename": "newgrp",
+      "permissions": "-rwsr-xr-x",
+      "owner": "root",
+      "group": "root",
+      "size": "44784",
+      "is_exploitable": false,
+      "exploit_info": ""
+    },
+    {
+      "file": "/usr/bin/su",
+      "filename": "su",
+      "permissions": "-rwsr-xr-x",
+      "owner": "root",
+      "group": "root",
+      "size": "67816",
+      "is_exploitable": false,
+      "exploit_info": ""
+    },
+    {
+      "file": "/usr/bin/gpasswd",
+      "filename": "gpasswd",
+      "permissions": "-rwsr-xr-x",
+      "owner": "root",
+      "group": "root",
+      "size": "88464",
+      "is_exploitable": false,
+      "exploit_info": ""
+    }
+  ],
+  "kernel_info": {
+    "kernel_version": "6.2.16",
+    "vulnerable_to": []
+  },
+  "sudo_permissions": {
+    "has_sudo": true,
+    "nopasswd_commands": [],
+    "sudo_commands": []
+  },
+  "writable_paths": [
+    {
+      "path": "/home/runner/workspace/.pythonlibs/bin",
+      "status": "writable"
+    },
+    {
+      "path": "/nix/store/wqhkxzzlaswkj3gimqign99sshvllcg6-python-wrapped-0.1.0/bin",
+      "status": "not writable"
+    },
+    {
+      "path": "/nix/store/65w97y1v20hqw9fm1g9frs7pjjask6y6-pip-wrapper/bin",
+      "status": "not writable"
+    },
+    {
+      "path": "/nix/store/ajpf6agpkgcjxk730sg3dmd5f13kagvc-poetry-wrapper/bin",
+      "status": "not writable"
+    },
+    {
+      "path": "/nix/store/5y7nb5lskxfh7xw742ks8nmdslw7saw5-uv-0.5.11/bin",
+      "status": "not writable"
+    },
+    {
+      "path": "/nix/store/74gix48xijd2d6q6kwgs6jskd7dhv608-pid1/bin",
+      "status": "not writable"
+    },
+    {
+      "path": "/nix/store/2wdjznxkbxy5qpvrfrx14s23acq5syz5-replit-runtime-path/bin",
+      "status": "not writable"
+    },
+    {
+      "path": "/home/runner/.nix-profile/bin",
+      "status": "not writable"
+    },
+    {
+      "path": "/home/runner/.local/bin",
+      "status": "writable"
+    },
+    {
+      "path": "/usr/local/sbin",
+      "status": "not writable"
+    },
+    {
+      "path": "/usr/local/bin",
+      "status": "not writable"
+    },
+    {
+      "path": "/usr/sbin",
+      "status": "not writable"
+    },
+    {
+      "path": "/usr/bin",
+      "status": "not writable"
+    },
+    {
+      "path": "/sbin",
+      "status": "not writable"
+    },
+    {
+      "path": "/bin",
+      "status": "not writable"
+    }
+  ],
+  "cron_jobs": [
+    {
+      "file": "/etc/cron.d/e2scrub_all",
+      "writable": false,
+      "readable": true,
+      "content": "30 3 * * 0 root test -e /run/systemd/system || SERVICE_MODE=1 /usr/lib/x86_64-linux-gnu/e2fsprogs/e2scrub_all_cron\n10 3 * * * root test -e /run/systemd/system || SERVICE_MODE=1 /sbin/e2scrub_all -A -r\n"
+    },
+    {
+      "file": "/etc/cron.daily/apt-compat",
+      "writable": false,
+      "readable": true,
+      "content": "#!/bin/sh\n\nset -e\n\n# Systemd systems use a systemd timer unit which is preferable to\n# run. We want to randomize the apt update and unattended-upgrade\n# runs as much as possible to avoid hitting the mirrors all at the\n# same time. The systemd time is better at this than the fixed\n# cron.daily time\nif [ -d /run/systemd/system ]; then\n    exit 0\nfi\n\ncheck_power()\n{\n    # laptop check, on_ac_power returns:\n    #       0 (true)    System is on main power\n    #       1 (false)   System is not on main power\n    #       255 (false) Power status could not be determined\n    # Desktop systems always return 255 it seems\n    if which on_ac_power >/dev/null 2>&1; then\n        if on_ac_power; then\n            :\n        elif [ $? -eq 1 ]; then\n            return 1\n        fi\n    fi\n    return 0\n}\n\n# sleep for a random interval of time (default 30min)\n# (some code taken from cron-apt, thanks)\nrandom_sleep()\n{\n    RandomSleep=1800\n    eval $(apt-config shell RandomSleep APT::Periodic::RandomSleep)\n    if [ $RandomSleep -eq 0 ]; then\n\treturn\n    fi\n    if [ -z \"$RANDOM\" ] ; then\n        # A fix for shells that do not have this bash feature.\n\tRANDOM=$(( $(dd if=/dev/urandom bs=2 count=1 2> /dev/null | cksum | cut -d' ' -f1) % 32767 ))\n    fi\n    TIME=$(($RANDOM % $RandomSleep))\n    sleep $TIME\n}\n\n# delay the job execution by a random amount of time\nrandom_sleep\n\n# ensure we don't do this on battery\ncheck_power || exit 0\n\n# run daily job\nexec /usr/lib/apt/apt.systemd.daily\n"
+    },
+    {
+      "file": "/etc/cron.daily/dpkg",
+      "writable": false,
+      "readable": true,
+      "content": "#!/bin/sh\n\ndbdir=/var/lib/dpkg\n\n# Backup the 7 last versions of dpkg databases containing user data.\nif cd /var/backups ; then\n    # We backup all relevant database files if any has changed, so that\n    # the rotation number always contains an internally consistent set.\n    dbchanged=no\n    dbfiles=\"arch status diversions statoverride\"\n    for db in $dbfiles ; do\n        if ! cmp -s \"dpkg.${db}.0\" \"$dbdir/$db\"; then\n            dbchanged=yes\n            break;\n        fi\n    done\n    if [ \"$dbchanged\" = \"yes\" ] ; then\n        for db in $dbfiles ; do\n            [ -e \"$dbdir/$db\" ] || continue\n            cp -p \"$dbdir/$db\" \"dpkg.$db\"\n            savelog -c 7 \"dpkg.$db\" >/dev/null\n        done\n    fi\n\n    # The alternatives database is independent from the dpkg database.\n    dbalt=alternatives\n\n    # XXX: Ideally we'd use --warning=none instead of discarding stderr, but\n    # as of GNU tar 1.27.1, it does not seem to work reliably (see #749307).\n    if ! test -e ${dbalt}.tar.0 ||\n       ! tar -df ${dbalt}.tar.0 -C $dbdir $dbalt >/dev/null 2>&1 ;\n    then\n        tar -cf ${dbalt}.tar -C $dbdir $dbalt >/dev/null 2>&1\n        savelog -c 7 ${dbalt}.tar >/dev/null\n    fi\nfi\n"
+    }
+  ]
+}
