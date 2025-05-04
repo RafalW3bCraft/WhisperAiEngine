@@ -7,7 +7,7 @@ setup(
     name="g3r4ki",
     version="0.1.0",
     description="AI-powered Linux system for cybersecurity operations",
-    author="G3r4ki Team",
+    author="RafalW3bCraft",
     packages=find_packages(),
     install_requires=[
         "pyyaml>=6.0",

@@ -29,13 +29,12 @@ setup-llms:
 	@bash ./scripts/setup_llms.sh
 
 install: install-deps setup-voice setup-llms
-	@echo "Creating Python virtual environment..."
-	python3 -m venv .venv
+	@echo "Using existing Python virtual environment at ~/.g3r4ki_venv"
 	@echo "Installing Python dependencies..."
-	.venv/bin/pip install -e .
+	~/.g3r4ki_venv/bin/pip install -e .
 	@echo ""
 	@echo "G3r4ki installation complete!"
-	@echo "Activate the virtual environment with: source .venv/bin/activate"
+	@echo "Activate the virtual environment with: source ~/.g3r4ki_venv/bin/activate"
 	@echo "Run G3r4ki with: python g3r4ki.py"
 
 update:
@@ -49,3 +48,28 @@ clean:
 	rm -rf __pycache__
 	rm -rf src/__pycache__
 	find . -name "*.pyc" -delete
+
+# Additional targets for separate environments for vLLM and llama.cpp
+
+setup-vllm-env:
+	@echo "Setting up separate Python virtual environment for vLLM with torch 2.7.0..."
+	@bash -c "\
+		if command -v pyenv &> /dev/null; then \
+			pyenv install -s 3.12.0 && \
+			pyenv virtualenv 3.12.0 g3r4ki-vllm && \
+			pyenv activate g3r4ki-vllm && \
+			pip install --upgrade pip && \
+			pip install torch==2.7.0 vllm; \
+		else \
+			echo 'pyenv not found. Please install pyenv to use this target.'; \
+			exit 1; \
+		fi"
+
+setup-llama-env:
+	@echo "Setting up separate Python environment for llama.cpp with torch 2.5.0..."
+	@bash -c "\
+		python3 -m venv ~/.g3r4ki-llama-venv && \
+		source ~/.g3r4ki-llama-venv/bin/activate && \
+		pip install --upgrade pip && \
+		pip install torch==2.5.0 protobuf==4.25.3; \
+		deactivate"
