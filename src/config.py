@@ -24,7 +24,7 @@ if IS_REPLIT:
     MODELS_DIR = os.path.join(os.getcwd(), '.local/share/g3r4ki/models')
     TEMP_DIR = os.path.join(os.getcwd(), '.cache/g3r4ki')
 else:
-    # Regular paths for standard Linux installations
+    # Standard paths for normal installations
     CONFIG_DIR = os.path.expanduser("~/.config/g3r4ki")
     CONFIG_FILE = os.path.join(CONFIG_DIR, "config.yaml")
     MODELS_DIR = os.path.expanduser("~/.local/share/g3r4ki/models")
@@ -43,37 +43,40 @@ def setup_config():
     os.makedirs(os.path.join(MODELS_DIR, "gpt4all"), exist_ok=True)
     os.makedirs(TEMP_DIR, exist_ok=True)
     
+    # Base directory for local AI components under current working directory
+    PWD = os.getcwd()
+    
     # Default configuration with paths based on environment
     if IS_REPLIT:
         # Replit-specific paths
         llm_paths = {
             "models_dir": MODELS_DIR,
             "temp_dir": TEMP_DIR,
-            "llama_cpp_dir": os.path.join(os.getcwd(), 'vendor/llama.cpp'),
-            "vllm_dir": os.path.join(os.getcwd(), 'vendor/vllm'),
-            "gpt4all_dir": os.path.join(os.getcwd(), 'vendor/gpt4all'),
-            "whisper_dir": os.path.join(os.getcwd(), 'vendor/whisper.cpp'),
-            "piper_dir": os.path.join(os.getcwd(), 'vendor/piper'),
+            "llama_cpp_dir": os.path.join(PWD, 'vendor/llama.cpp'),
+            "vllm_dir": os.path.join(PWD, 'vendor/vllm'),
+            "gpt4all_dir": os.path.join(PWD, 'vendor/gpt4all'),
+            "whisper_dir": os.path.join(PWD, 'vendor/whisper.cpp'),
+            "piper_dir": os.path.join(PWD, 'vendor/piper'),
         }
     else:
-        # Standard paths for normal installations
+        # Standard paths for normal installations, updated to PWD/vendor
         llm_paths = {
             "models_dir": MODELS_DIR,
             "temp_dir": TEMP_DIR,
-            "llama_cpp_dir": os.path.expanduser("~/llama.cpp"),
-            "vllm_dir": os.path.expanduser("~/vllm"),
-            "gpt4all_dir": os.path.expanduser("~/gpt4all"),
-            "whisper_dir": os.path.expanduser("~/whisper.cpp"),
-            "piper_dir": os.path.expanduser("~/piper"),
+            "llama_cpp_dir": os.path.join(PWD, 'vendor/llama.cpp'),
+            "vllm_dir": os.path.join(PWD, 'vendor/vllm'),
+            "gpt4all_dir": os.path.join(PWD, 'vendor/gpt4all'),
+            "whisper_dir": os.path.join(PWD, 'vendor/whisper.cpp'),
+            "piper_dir": os.path.join(PWD, 'vendor/piper'),
         }
     
-    # Create the complete default config
+    # Create the complete default config with updated default model filenames
     default_config = {
         "paths": llm_paths,
         "llm": {
             "default_engine": "llama.cpp",
             "default_model": {
-                "llama.cpp": "ggml-model-q4_0.bin",
+                "llama.cpp": "tinyllama-1.1b-chat-v1.0.Q4_0.gguf",
                 "vllm": "facebook/opt-1.3b",
                 "gpt4all": "ggml-gpt4all-j-v1.3-groovy.bin"
             },

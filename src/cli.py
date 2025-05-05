@@ -58,7 +58,7 @@ except ImportError as e:
 class G3r4kiCLI(cmd.Cmd):
     """Command-line interface for G3r4ki"""
     
-    intro = """
+    intro = r"""
   __ _____  _ _   _    _ 
  / _|__ / || | | | | _(_)
 | |_ |_ \| || |_| |/ / |
@@ -227,7 +227,11 @@ Type 'help' or '?' to list commands.
     
     def handle_llm_command(self, args):
         """Handle LLM-related commands from command line arguments"""
-        if args.list:
+        if not hasattr(args, "llm_command") or args.llm_command is None:
+            print("No llm subcommand specified. Use --help for usage.")
+            return
+        
+        if args.llm_command == "list":
             engines, models = self.llm_manager.list_models()
             print("Available LLM engines:")
             for engine in engines:
@@ -243,39 +247,134 @@ Type 'help' or '?' to list commands.
                 for provider in providers:
                     print(f"  - {provider['name']} ({provider['type']})")
         
-        elif hasattr(args, 'query') and args.query:
-            # If --ai flag is specified, use the unified AI system
-            if hasattr(args, 'ai') and args.ai:
-                # Use unified AI system
-                system_prompt = args.system if hasattr(args, 'system') else ""
-                provider = args.provider if hasattr(args, 'provider') else None
-                
-                if provider:
-                    print(f"Querying AI provider: {provider}...")
-                    try:
-                        result = self.ai_proxy.query(provider, args.query, system_prompt)
-                        print(f"\nResponse from {result['provider_name']} (took {result['time_taken']}s):")
-                        print(result['response'])
-                    except Exception as e:
-                        print(f"Error querying AI provider: {str(e)}")
-                else:
-                    print("Querying best available AI provider...")
-                    try:
-                        result = self.ai_proxy.query_best(args.query, system_prompt)
-                        print(f"\nResponse from {result['provider_name']} (took {result['time_taken']}s):")
-                        print(result['response'])
-                    except Exception as e:
-                        print(f"Error querying AI: {str(e)}")
+        elif args.llm_command == "download":
+            provider = args.provider
+            model = args.model
+            
+            print(f"Downloading model '{model}' for provider '{provider}'...")
+            
+            try:
+                from src.llm.local_ai import LocalAIManager
+            except ImportError as e:
+                print(f"Error importing LocalAIManager: {e}")
+                return
+            
+            local_ai = LocalAIManager()
+            
+            success = local_ai.download_model(provider, model)
+            
+            if success:
+                print(f"Model '{model}' downloaded successfully for provider '{provider}'.")
             else:
-                # Use traditional LLM engines
-                engine = args.engine if args.engine else self.config['llm']['default_engine']
-                model = args.model if args.model else self.config['llm']['default_model'][engine]
-                
-                print(f"Querying {engine} with model {model}...")
-                response = self.llm_manager.query(args.query, engine, model)
-                
-                print("\nResponse:")
-                print(response)
+                print(f"Failed to download model '{model}' for provider '{provider}'.")
+        
+        elif args.llm_command == "query":
+            engine = args.engine if args.engine else self.config['llm']['default_engine']
+            model = args.model if args.model else self.config['llm']['default_model'][engine]
+            
+            print(f"Querying {engine} with model {model}...")
+            response = self.llm_manager.query(args.text, engine, model)
+            
+            print("\nResponse:")
+            print(response)
+        
+        elif args.llm_command == "ai":
+            text = args.text
+            provider_id = args.provider
+            system_prompt = args.system if hasattr(args, 'system') else ""
+            
+            providers = self.ai_proxy.get_available_providers()
+            if not providers:
+                print("No AI providers are available.")
+                print("Please ensure you have API keys for cloud providers or")
+                print("run the setup scripts to install local LLM components:")
+                print("  bash scripts/setup_llms.sh")
+                return
+            
+            if not provider_id:
+                recommended = self.ai_proxy.get_recommended_provider()
+                if recommended:
+                    provider_id = recommended['id']
+                    print(f"Using recommended provider: {recommended['name']}")
+                else:
+                    provider_id = providers[0]['id']
+                    print(f"Using available provider: {providers[0]['name']}")
+            
+            if not self.ai_proxy.is_provider_available(provider_id):
+                print(f"Error: Provider '{provider_id}' is not available.")
+                print("Available providers:")
+                for p in providers:
+                    print(f"  - {p['name']} (id: {p['id']})")
+                return
+            
+            print(f"Querying provider: {provider_id}...")
+            if system_prompt:
+                print(f"Using system prompt: {system_prompt}")
+            
+            try:
+                result = self.ai_proxy.query(provider_id, text, system_prompt)
+                print(f"\nResponse from {result['provider_name']} (took {result['time_taken']}s):")
+                print(result['response'])
+            except Exception as e:
+                print(f"Error querying AI provider: {str(e)}")
+        
+        elif args.llm_command == "best":
+            text = args.text
+            system_prompt = args.system if hasattr(args, 'system') else ""
+            
+            print("Querying best available AI provider...")
+            if system_prompt:
+                print(f"Using system prompt: {system_prompt}")
+            
+            try:
+                result = self.ai_proxy.query_with_reasoning(text, system_prompt)
+                print(f"\nResponse from {result['provider_name']} (took {result['time_taken']}s):")
+                print(result['response'])
+            except Exception as e:
+                print(f"Error querying AI: {str(e)}")
+        
+        elif args.llm_command == "providers":
+            providers = self.ai_proxy.get_available_providers()
+            if not providers:
+                print("No AI providers are currently available.")
+                print("Please ensure you have API keys for cloud providers or")
+                print("run the setup scripts to install local LLM components:")
+                print("  bash scripts/setup_llms.sh")
+                return
+            
+            print("Available AI Providers:")
+            cloud_providers = [p for p in providers if p['type'] == 'cloud']
+            local_providers = [p for p in providers if p['type'] == 'local']
+            
+            if cloud_providers:
+                print("\nCloud Providers:")
+                for provider in cloud_providers:
+                    print(f"  - {provider['name']} (id: {provider['id']})")
+            
+            if local_providers:
+                print("\nLocal Providers:")
+                for provider in local_providers:
+                    model_count = provider.get('model_count', 0)
+                    print(f"  - {provider['name']} (id: {provider['id']}) - {model_count} models")
+            
+            recommended = self.ai_proxy.get_recommended_provider()
+            if recommended:
+                print(f"\nRecommended provider: {recommended['name']} ({recommended['type']})")
+        
+        elif args.llm_command == "engines":
+            engines = self.llm_manager.get_available_engines()
+            if not engines:
+                print("No LLM engines are currently available.")
+                print("Please run the setup scripts to install LLM components:")
+                print("  bash scripts/setup_llms.sh")
+                return
+            
+            print("Available LLM engines:")
+            for engine in engines:
+                print(f"  - {engine}")
+        
+        else:
+            print("Unknown llm command. Use: list|query|download|ai|best|providers|engines")
     
     def handle_voice_command(self, args):
         """Handle voice-related commands from command line arguments"""

@@ -1,26 +1,27 @@
+# G3R4KI Configuration File
 debug: false
 llm:
-  context_length: 2048
-  default_engine: llama.cpp
-  default_model:
-    gpt4all: ggml-gpt4all-j-v1.3-groovy.bin
-    llama.cpp: ggml-model-q4_0.bin
-    vllm: facebook/opt-1.3b
-  use_gpu: true
+context_length: 2048
+default_engine: llama.cpp
+default_model:
+gpt4all: ggml-gpt4all-j-v1.3-groovy.bin
+llama.cpp: tinyllama-1.1b-chat-v1.0.Q4_0.gguf
+vllm: facebook/opt-1.3b
+use_gpu: true
 paths:
-  gpt4all_dir: /home/runner/workspace/vendor/gpt4all
-  llama_cpp_dir: /home/runner/workspace/vendor/llama.cpp
-  models_dir: /home/runner/workspace/.local/share/g3r4ki/models
-  piper_dir: /home/runner/workspace/vendor/piper
-  temp_dir: /home/runner/workspace/.cache/g3r4ki
-  vllm_dir: /home/runner/workspace/vendor/vllm
-  whisper_dir: /home/runner/workspace/vendor/whisper.cpp
+gpt4all_dir: /home/rafal/Downloads/WhisperAiEngine/vendor/gpt4all
+llama_cpp_dir: /home/rafal/Downloads/WhisperAiEngine/vendor/llama.cpp
+models_dir: /home/rafal/.local/share/g3r4ki/models
+piper_dir: /home/rafal/Downloads/WhisperAiEngine/vendor/piper
+temp_dir: /home/rafal/.cache/g3r4ki
+vllm_dir: /home/rafal/Downloads/WhisperAiEngine/vendor/vllm
+whisper_dir: /home/rafal/Downloads/WhisperAiEngine/vendor/whisper.cpp
 security:
-  max_recon_depth: 2
-  nmap_args: -sS -sV -p-
-  vuln_scan_timeout: 300
+max_recon_depth: 2
+nmap_args: -sS -sV -p-
+vuln_scan_timeout: 300
 voice:
-  audio_input_device: default
-  audio_output_device: default
-  piper_model: en_US-amy-low
-  whisper_model: tiny.en
+audio_input_device: default
+audio_output_device: default
+piper_model: en_US-amy-low
+whisper_model: tiny.en

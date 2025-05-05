@@ -881,13 +881,38 @@ def main():
     
     # LLM commands
     llm_parser = subparsers.add_parser("llm", help="LLM operations")
-    llm_parser.add_argument("--list", action="store_true", help="List available LLMs and AI providers")
-    llm_parser.add_argument("--query", type=str, help="Query an LLM")
-    llm_parser.add_argument("--engine", type=str, help="Specify LLM engine (llama.cpp, vllm, gpt4all)")
-    llm_parser.add_argument("--model", type=str, help="Specify model name")
-    llm_parser.add_argument("--ai", action="store_true", help="Use the unified AI system")
-    llm_parser.add_argument("--provider", type=str, help="Specify AI provider")
-    llm_parser.add_argument("--system", type=str, help="System prompt for AI")
+    llm_subparsers = llm_parser.add_subparsers(dest="llm_command", help="LLM subcommands")
+    
+    # llm list
+    llm_list_parser = llm_subparsers.add_parser("list", help="List available LLMs and AI providers")
+    
+    # llm query
+    llm_query_parser = llm_subparsers.add_parser("query", help="Query an LLM")
+    llm_query_parser.add_argument("text", type=str, help="Text to query")
+    llm_query_parser.add_argument("--engine", type=str, help="Specify LLM engine (llama.cpp, vllm, gpt4all)")
+    llm_query_parser.add_argument("--model", type=str, help="Specify model name")
+    
+    # llm download
+    llm_download_parser = llm_subparsers.add_parser("download", help="Download a model for a specified provider")
+    llm_download_parser.add_argument("--provider", type=str, required=True, help="Specify AI provider")
+    llm_download_parser.add_argument("--model", type=str, required=True, help="Specify model name")
+    
+    # llm ai
+    llm_ai_parser = llm_subparsers.add_parser("ai", help="Use the unified AI system")
+    llm_ai_parser.add_argument("text", type=str, help="Text to query")
+    llm_ai_parser.add_argument("--provider", type=str, help="Specify AI provider")
+    llm_ai_parser.add_argument("--system", type=str, help="System prompt for AI")
+    
+    # llm best
+    llm_best_parser = llm_subparsers.add_parser("best", help="Query best available AI provider")
+    llm_best_parser.add_argument("text", type=str, help="Text to query")
+    llm_best_parser.add_argument("--system", type=str, help="System prompt for AI")
+    
+    # llm providers
+    llm_subparsers.add_parser("providers", help="List available AI providers")
+    
+    # llm engines
+    llm_subparsers.add_parser("engines", help="List available LLM engines")
     
     # Voice commands
     voice_parser = subparsers.add_parser("voice", help="Voice operations")

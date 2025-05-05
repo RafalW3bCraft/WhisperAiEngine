@@ -301,9 +301,15 @@ class LocalAIManager:
             
             repo_id = model_repos[model_name]
             
+            # Check if model directory already exists
+            model_path = os.path.join(provider_dir, model_name)
+            if os.path.exists(model_path):
+                logger.info(f"Model {model_name} already exists at {model_path}, skipping download.")
+                return True
+            
             # Download entire model repository
             logger.info(f"Downloading {model_name} from {repo_id}...")
-            model_path = snapshot_download(repo_id=repo_id, local_dir=os.path.join(provider_dir, model_name))
+            model_path = snapshot_download(repo_id=repo_id, local_dir=model_path)
             
             # Update configuration
             self.config["providers"]["vllm"]["models"][model_name] = {
@@ -328,6 +334,19 @@ class LocalAIManager:
             except ImportError:
                 logger.error("gpt4all is not installed. Please install with: pip install gpt4all")
                 return False
+            
+            # Check if model file already exists
+            model_file_path = os.path.join(provider_dir, f"{model_name}.bin")
+            if os.path.exists(model_file_path):
+                logger.info(f"Model {model_name} already exists at {model_file_path}, skipping download.")
+                # Update configuration if missing
+                if model_name not in self.config["providers"]["gpt4all"]["models"]:
+                    self.config["providers"]["gpt4all"]["models"][model_name] = {
+                        "path": model_file_path,
+                        "type": "gpt4all"
+                    }
+                    self._save_config()
+                return True
             
             # GPT4All has its own model download mechanism
             model = GPT4All(model_name=model_name, model_path=provider_dir)
