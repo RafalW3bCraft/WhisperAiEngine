@@ -39,11 +39,22 @@ G3r4ki is an advanced AI-powered Linux cybersecurity platform that autonomously 
 git clone https://github.com/yourusername/g3r4ki.git
 cd g3r4ki
 
-# Run the installation script
-./install.sh
+# Run the installation script (requires root privileges for system dependencies)
+sudo ./install.sh
 ```
 
+This script will:
+- Check system requirements (OS, Python version, disk space, memory)
+- Install system dependencies (Python, PostgreSQL, build tools, networking tools)
+- Set up PostgreSQL database with user, password, and database creation
+- Install Python dependencies in development mode
+- Initialize the database schema
+- Optionally configure local AI capabilities
+- Finalize installation and optionally create a system-wide command
+
 ### Manual Installation
+
+If you prefer manual setup, follow these steps:
 
 1. Clone the repository:
    ```bash
@@ -51,38 +62,64 @@ cd g3r4ki
    cd g3r4ki
    ```
 
-2. Install Python dependencies:
+2. Install system dependencies (on Debian/Ubuntu/Kali):
    ```bash
-   pip install -e .
+   sudo apt-get update
+   sudo apt-get install -y python3-pip python3-venv python3-dev postgresql postgresql-contrib libpq-dev build-essential git curl wget net-tools nmap netcat-openbsd
    ```
 
-3. Set up the database:
+3. Install Python dependencies:
    ```bash
-   # Install PostgreSQL if not already installed
-   sudo apt update
-   sudo apt install -y postgresql postgresql-contrib
-
-   # Create a PostgreSQL user and database
-   sudo -u postgres createuser --interactive --pwprompt g3r4ki
-   sudo -u postgres createdb --owner=g3r4ki g3r4ki_db
+   python3 -m pip install --upgrade pip
+   python3 -m pip install -e .
    ```
 
-4. Configure environment variables:
+4. Set up PostgreSQL database:
    ```bash
-   # Create a .env file
+   sudo systemctl start postgresql
+   sudo -u postgres psql -c "CREATE USER g3r4ki WITH PASSWORD 'your_password';"
+   sudo -u postgres psql -c "CREATE DATABASE g3r4ki_db OWNER g3r4ki;"
+   ```
+
+5. Create a `.env` file with database connection info and optional API keys:
+   ```bash
    cat > .env << EOL
    DATABASE_URL=postgresql://g3r4ki:your_password@localhost/g3r4ki_db
-   # Optional: Add API keys for cloud providers
    # OPENAI_API_KEY=your_openai_key
    # ANTHROPIC_API_KEY=your_anthropic_key
    # DEEPSEEK_API_KEY=your_deepseek_key
    EOL
    ```
 
-5. Initialize the database:
+6. Initialize the database schema:
    ```bash
-   python -m src.database.init_db
+   python3 -m src.database.init_db
    ```
+
+### Additional Setup
+
+- To install system dependencies separately, you can run:
+  ```bash
+  sudo scripts/install_deps.sh
+  ```
+
+- To set up local AI models (llama.cpp, vLLM, GPT4All):
+  ```bash
+  make setup-llms
+  ```
+
+- To set up voice components (Whisper and Piper):
+  ```bash
+  make setup-voice
+  ```
+
+### Optional
+
+- During installation, you may be prompted to create a system-wide command:
+  ```bash
+  sudo ln -sf $(pwd)/g3r4ki.py /usr/local/bin/g3r4ki
+  ```
+  This allows running `g3r4ki` from anywhere.
 
 ## Getting Started
 
@@ -90,13 +127,13 @@ cd g3r4ki
 
 ```bash
 # Start the interactive shell
-python g3r4ki.py interactive
+python3 g3r4ki.py interactive
 
 # Or start with debugging enabled
-python g3r4ki.py --debug interactive
+python3 g3r4ki.py --debug interactive
 
 # Launch the web interface
-python g3r4ki.py web
+python3 g3r4ki.py web
 ```
 
 ### Basic Commands
@@ -120,30 +157,6 @@ g3r4ki> create a keylogger for macOS
 g3r4ki> show me all active operations
 ```
 
-## Module Overview
-
-### Offensive Modules
-
-- **RAT Deployment Toolkit**: Deploy polymorphic, cross-platform Remote Access Trojans
-- **Keylogging & Screen Capture**: Advanced stealth monitoring tools
-- **Command & Control Integration**: Connect to external C2 infrastructure
-- **Credential Harvester**: Extract and store credentials from various sources
-- **Shell Generator**: Create customized reverse and bind shells for multiple platforms
-
-### Defensive Modules
-
-- **Incident Response Simulator**: Test IR capabilities with realistic scenarios
-- **Threat Intelligence**: Aggregate and analyze threat data
-- **Penetration Testing**: Automated and guided penetration testing capabilities
-- **Vulnerability Scanner**: Identify and assess security weaknesses
-
-### AI Components
-
-- **AI Proxy System**: Unified interface to all AI providers
-- **Local AI Manager**: Configure and use local language models
-- **Natural Language Processor**: Command understanding and intent extraction
-- **Self-Improvement System**: Learn from usage patterns to enhance capabilities
-
 ## Configuration
 
 ### AI Providers
@@ -158,10 +171,10 @@ DEEPSEEK_API_KEY=your_deepseek_key
 
 ### Local AI Models
 
-Configure local AI models in the configuration:
+Configure local AI models for offline operation:
 
 ```bash
-python g3r4ki.py setup local-ai
+python3 g3r4ki.py setup local-ai
 ```
 
 ### Database Configuration
@@ -172,59 +185,30 @@ Edit database settings in `.env`:
 DATABASE_URL=postgresql://username:password@hostname/dbname
 ```
 
-## Advanced Usage
-
-### Running in Headless Mode
-
-```bash
-python g3r4ki.py --headless offensive run --mission recon --target 192.168.1.0/24
-```
-
-### Creating Custom Modules
-
-Create a new module in `src/offensive/modules/my_module/__init__.py` and implement the required interfaces.
-
-### Automating with Agents
-
-Configure autonomous agent behavior:
-
-```bash
-python g3r4ki.py agent create --name defender --mission "monitor and respond to threats"
-```
-
 ## Troubleshooting
 
-### Database Connection Issues
+### Common Issues
 
-If you encounter database connection issues:
+- Ensure PostgreSQL service is running:
+  ```bash
+  sudo systemctl status postgresql
+  ```
 
-```bash
-# Check database status
-sudo systemctl status postgresql
+- Verify database connection:
+  ```bash
+  python3 -c "from src.database import check_connection; check_connection()"
+  ```
 
-# Verify connection details
-python -c "from src.database import check_connection; check_connection()"
-```
+- Check AI provider connectivity:
+  ```bash
+  python3 -m src.ai.proxy --test-providers
+  ```
 
-### AI Provider Connectivity
-
-Test AI provider connectivity:
-
-```bash
-python -m src.ai.proxy --test-providers
-```
-
-### Reinstalling G3r4ki
-
-To reinstall or reset G3r4ki:
-
-```bash
-# Uninstall
-python g3r4ki.py setup uninstall
-
-# Reinstall
-./install.sh
-```
+- Reinstall G3r4ki if needed:
+  ```bash
+  python3 g3r4ki.py setup uninstall
+  sudo ./install.sh
+  ```
 
 ## License
 

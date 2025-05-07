@@ -98,17 +98,17 @@ G3r4ki can run entirely offline using local AI models. The system supports multi
 
 1. Configure local AI settings:
    ```bash
-   python g3r4ki.py setup local-ai
+   python3 g3r4ki.py setup local-ai
    ```
 
 2. Download models:
    ```bash
-   python g3r4ki.py setup local-ai --download-model llama2-7b
+   python3 g3r4ki.py setup local-ai --download-model llama2-7b
    ```
 
 3. Test local AI:
    ```bash
-   python g3r4ki.py llm test-local --model llama2-7b --prompt "Generate a basic reconnaissance plan"
+   python3 g3r4ki.py llm test-local --model llama2-7b --prompt "Generate a basic reconnaissance plan"
    ```
 
 Local models are stored in `~/.g3r4ki/models` by default.
@@ -127,16 +127,16 @@ The AI Proxy system is the heart of G3r4ki's AI capabilities, providing:
 
 ```bash
 # Set default mode to local-only
-python g3r4ki.py setup ai-proxy --mode local
+python3 g3r4ki.py setup ai-proxy --mode local
 
 # Set default mode to cloud-only
-python g3r4ki.py setup ai-proxy --mode cloud
+python3 g3r4ki.py setup ai-proxy --mode cloud
 
 # Set default mode to auto (prefer cloud, fallback to local)
-python g3r4ki.py setup ai-proxy --mode auto
+python3 g3r4ki.py setup ai-proxy --mode auto
 
 # Configure provider priority
-python g3r4ki.py setup ai-proxy --priority "anthropic,openai,deepseek,local"
+python3 g3r4ki.py setup ai-proxy --priority "anthropic,openai,deepseek,local"
 ```
 
 ### Using the Proxy Programmatically
@@ -171,10 +171,10 @@ Natural language commands are processed using AI:
 
 ```bash
 # Instead of using this syntax:
-python g3r4ki.py offensive shell generate --type reverse --language bash --lhost 192.168.1.5 --lport 4444
+python3 g3r4ki.py offensive shell generate --type reverse --language bash --lhost 192.168.1.5 --lport 4444
 
 # You can use natural language:
-python g3r4ki.py interactive
+python3 g3r4ki.py interactive
 g3r4ki> create a bash reverse shell connecting back to 192.168.1.5 port 4444
 ```
 
@@ -183,11 +183,8 @@ g3r4ki> create a bash reverse shell connecting back to 192.168.1.5 port 4444
 AI-assisted analysis of security data:
 
 ```bash
-# Vulnerability scan with AI analysis
-python g3r4ki.py sec scan --target 192.168.1.10 --ai-analysis
-
-# Analyze a suspicious file
-python g3r4ki.py sec analyze --file malware.exe --ai-analysis
+python3 g3r4ki.py sec scan --target 192.168.1.10 --ai-analysis
+python3 g3r4ki.py sec analyze --file malware.exe --ai-analysis
 ```
 
 ### Mission Planning
@@ -195,8 +192,7 @@ python g3r4ki.py sec analyze --file malware.exe --ai-analysis
 AI helps plan and execute security operations:
 
 ```bash
-# Create an AI-assisted penetration testing plan
-python g3r4ki.py offensive mission plan --target "Example Corp" --objective "Data Exfiltration" --ai-guided
+python3 g3r4ki.py offensive mission plan --target "Example Corp" --objective "Data Exfiltration" --ai-guided
 ```
 
 ### Interactive AI Assistance
@@ -204,12 +200,11 @@ python g3r4ki.py offensive mission plan --target "Example Corp" --objective "Dat
 Get interactive AI help with security tasks:
 
 ```bash
-# Start interactive AI security assistant
-python g3r4ki.py interactive
+python3 g3r4ki.py interactive
 g3r4ki> ai assist
 
 # Or using the web interface
-python g3r4ki.py web
+python3 g3r4ki.py web
 # Then navigate to http://localhost:5000/ai
 ```
 
@@ -262,8 +257,7 @@ tasks:
 For improved performance with local models:
 
 ```bash
-# Configure thread settings for local inference
-python g3r4ki.py setup local-ai --inference-threads 4 --batch-size 512
+python3 g3r4ki.py setup local-ai --inference-threads 4 --batch-size 512
 ```
 
 ### API Usage Monitoring
@@ -271,11 +265,9 @@ python g3r4ki.py setup local-ai --inference-threads 4 --batch-size 512
 Monitor your cloud API usage:
 
 ```bash
-# View API usage statistics
-python g3r4ki.py llm usage-stats
+python3 g3r4ki.py llm usage-stats
 
-# Set usage limits
-python g3r4ki.py setup ai-limits --monthly-budget 50 --provider openai
+python3 g3r4ki.py setup ai-limits --monthly-budget 50 --provider openai
 ```
 
 ## Troubleshooting
@@ -300,21 +292,18 @@ python g3r4ki.py setup ai-limits --monthly-budget 50 --provider openai
 
 - Check the log files at `~/.g3r4ki/logs/ai_proxy.log`
 - Verify configuration files exist and are properly formatted
-- Reset proxy configuration: `python g3r4ki.py setup ai-proxy --reset`
+- Reset proxy configuration: `python3 g3r4ki.py setup ai-proxy --reset`
 
 ### Getting Help
 
 For more help with AI integration:
 
 ```bash
-# Get detailed help on AI configuration
-python g3r4ki.py llm --help
+python3 g3r4ki.py llm --help
 
-# Check AI system status
-python g3r4ki.py status ai
+python3 g3r4ki.py status ai
 
-# Run AI diagnostics
-python g3r4ki.py setup diagnose-ai
+python3 g3r4ki.py setup diagnose-ai
 ```
 
 ## Conclusion

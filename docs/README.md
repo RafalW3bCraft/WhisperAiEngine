@@ -44,15 +44,14 @@ G3r4ki is an advanced AI-powered Linux cybersecurity platform that autonomously 
 
 ```bash
 # Clone the repository
-git clone https://github.com/user/g3r4ki.git
+git clone https://github.com/yourusername/g3r4ki.git
 cd g3r4ki
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Run setup
-python g3r4ki.py setup
+# Run the installation script (requires root privileges)
+sudo ./install.sh
 ```
+
+This script will install system dependencies, set up the PostgreSQL database, install Python dependencies, initialize the database schema, and optionally configure local AI capabilities.
 
 ### Configuration
 
@@ -67,31 +66,31 @@ python g3r4ki.py setup
 
 2. Configure local AI models for offline operation (optional):
    ```bash
-   python g3r4ki.py llm download --model llama2-7b --provider llama.cpp
+   python3 g3r4ki.py setup local-ai
    ```
 
-3. Initialize the database:
+3. Initialize the database (if not done by install.sh):
    ```bash
-   python src/database/init_db.py
+   python3 -m src.database.init_db
    ```
 
 ### Basic Usage
 
 ```bash
 # Start interactive shell
-python g3r4ki.py interactive
+python3 g3r4ki.py interactive
 
 # Start web interface
-python g3r4ki.py web
+python3 g3r4ki.py web
 
 # Use voice interface
-python g3r4ki.py voice --listen
+python3 g3r4ki.py voice --listen
 
 # Run offensive module
-python g3r4ki.py offensive rat --generate windows --c2 example.com --port 8443
+python3 g3r4ki.py offensive rat --generate windows --c2 example.com --port 8443
 
 # Run incident simulator
-python g3r4ki.py incident --type ransomware
+python3 g3r4ki.py incident --type ransomware
 ```
 
 ## Documentation
