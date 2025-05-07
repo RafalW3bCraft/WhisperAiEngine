@@ -308,7 +308,7 @@ setup_vllm() {
 
         if [[ "$download_model" == "y" || "$download_model" == "Y" ]]; then
             echo "Downloading a small test model for vLLM..."
-            wget -O "$MODEL_FILE" https://huggingface.co/vllm/test-model/resolve/main/test-model.bin
+            wget -O "$MODEL_FILE" https://huggingface.co/Vanessasml/cyber-risk-llama-2-7b
             echo "Test model downloaded to $MODELS_DIR/vllm/"
         else
             echo "Skipping model download. You will need to download models manually."
@@ -361,7 +361,7 @@ setup_gpt4all() {
 
         if [[ "$download_model" == "y" || "$download_model" == "Y" ]]; then
             echo "Downloading a small GPT4All model for testing..."
-            wget -O "$MODEL_FILE" https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin
+            wget -O "$MODEL_FILE" https://huggingface.co/jeiku/Nous-Capybara-3B-V1.9-Q4_K_M-GGUF
             echo "Test model downloaded to $MODELS_DIR/gpt4all/"
         else
             echo "Skipping model download. You will need to download models manually."
