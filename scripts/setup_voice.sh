@@ -10,18 +10,20 @@ echo
 # Check if running on Replit
 REPLIT_ENV=0
 if [[ -n "${REPL_ID:-}" ]]; then
-  echo "Detected Replit environment."
-  REPLIT_ENV=1
+    echo "Detected Replit environment."
+    REPLIT_ENV=1
 fi
 
 # Configuration
 if [[ "$REPLIT_ENV" -eq 1 ]]; then
-  WHISPER_DIR="$PWD/vendor/whisper.cpp"
-  PIPER_DIR="$PWD/vendor/piper"
+    WHISPER_DIR="$PWD/vendor/whisper.cpp"
+    PIPER_DIR="$PWD/vendor/piper"
 else
-  WHISPER_DIR="$HOME/whisper.cpp"
-  PIPER_DIR="$HOME/piper"
+    # Always use Linux environment paths
+    WHISPER_DIR="$PWD/vendor/whisper.cpp"
+    PIPER_DIR="$PWD/vendor/piper"
 fi
+    
 
 # Function to check for required tools
 check_requirements() {

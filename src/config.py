@@ -16,6 +16,7 @@ logger = logging.getLogger('g3r4ki.config')
 # Check if running in Replit
 IS_REPLIT = 'REPL_ID' in os.environ
 
+
 # Default configuration paths
 if IS_REPLIT:
     # Replit paths - keep data in the project directory for persistence
@@ -24,7 +25,7 @@ if IS_REPLIT:
     MODELS_DIR = os.path.join(os.getcwd(), '.local/share/g3r4ki/models')
     TEMP_DIR = os.path.join(os.getcwd(), '.cache/g3r4ki')
 else:
-    # Standard paths for normal installations
+    # Standard paths for installations
     CONFIG_DIR = os.path.expanduser("~/.config/g3r4ki")
     CONFIG_FILE = os.path.join(CONFIG_DIR, "config.yaml")
     MODELS_DIR = os.path.expanduser("~/.local/share/g3r4ki/models")
@@ -59,7 +60,7 @@ def setup_config():
             "piper_dir": os.path.join(PWD, 'vendor/piper'),
         }
     else:
-        # Standard paths for normal installations, updated to PWD/vendor
+        # Always use standard Linux environment paths
         llm_paths = {
             "models_dir": MODELS_DIR,
             "temp_dir": TEMP_DIR,

@@ -108,17 +108,22 @@ class DependencyManager:
         return results
     
     def install_dependencies(self, category: Optional[str] = None, 
-                           missing_only: bool = True) -> Dict[str, bool]:
+                           missing_only: bool = True,
+                           python_executable: Optional[str] = None) -> Dict[str, bool]:
         """
         Install dependencies.
         
         Args:
             category: Optional category to install
             missing_only: Only install missing packages if True
+            python_executable: Python executable to use for pip install (default: sys.executable)
             
         Returns:
             Dictionary of installation results
         """
+        if python_executable is None:
+            python_executable = sys.executable
+
         results = {}
         
         # Determine which packages to install
@@ -138,10 +143,10 @@ class DependencyManager:
         # Install each package
         for package in packages_to_install:
             try:
-                logger.info(f"Installing {package}...")
+                logger.info(f"Installing {package} using {python_executable}...")
                 
                 result = subprocess.run(
-                    [sys.executable, "-m", "pip", "install", package],
+                    [python_executable, "-m", "pip", "install", package],
                     capture_output=True,
                     text=True,
                     check=False
@@ -185,6 +190,11 @@ dependency_manager = DependencyManager()
 
 def check_and_install_core_dependencies():
     """Check and install core dependencies on import."""
+    # Avoid automatic installation if running outside virtual environment
+    if not (hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)):
+        logger.warning("Not running inside a virtual environment; skipping automatic dependency installation.")
+        return
+
     # Check if core dependencies are installed
     if not dependency_manager.is_category_installed("core"):
         logger.warning("Core dependencies missing, attempting to install...")

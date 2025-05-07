@@ -7,6 +7,24 @@ echo "G3r4ki - Setting up LLM components"
 echo "================================="
 echo
 
+# Set TMPDIR to a directory with sufficient space for pip build temp files
+TMPDIR="$HOME/tmp"
+mkdir -p "$TMPDIR"
+export TMPDIR
+
+# Check available space on TMPDIR
+REQUIRED_SPACE_MB=1024  # 1GB minimum
+AVAILABLE_SPACE_MB=$(df "$TMPDIR" | tail -1 | awk '{print $4}')
+AVAILABLE_SPACE_MB=$((AVAILABLE_SPACE_MB / 1024))
+
+if [ "$AVAILABLE_SPACE_MB" -lt "$REQUIRED_SPACE_MB" ]; then
+    echo "ERROR: Not enough disk space in TMPDIR ($TMPDIR) to proceed with installation."
+    echo "Available space: ${AVAILABLE_SPACE_MB}MB, required: ${REQUIRED_SPACE_MB}MB."
+    echo "Please free up space or set TMPDIR to a directory with more space."
+    exit 1
+fi
+
+echo "Using TMPDIR=$TMPDIR with available space ${AVAILABLE_SPACE_MB}MB for pip build temp files."
 # Check if running on Replit
 REPLIT_ENV=0
 if [ -n "$REPL_ID" ]; then
@@ -23,12 +41,12 @@ if [ "$REPLIT_ENV" -eq 1 ]; then
   MODELS_DIR=~/.local/share/g3r4ki/models
   PYTHON_VENV_BASE=$PWD
 else
-  # Regular paths
-  LLAMA_CPP_DIR=$PWD/vendor/llama.cpp
-  VLLM_DIR=$PWD/vendor/vllm
-  GPT4ALL_DIR=$PWD/vendor/gpt4all
-  MODELS_DIR=~/.local/share/g3r4ki/models
-  PYTHON_VENV_BASE=~/.g3r4ki_venvs
+    # Always use Linux environment paths
+    LLAMA_CPP_DIR=$PWD/vendor/llama.cpp
+    VLLM_DIR=$PWD/vendor/vllm
+    GPT4ALL_DIR=$PWD/vendor/gpt4all
+    MODELS_DIR=~/.local/share/g3r4ki/models
+    PYTHON_VENV_BASE=~/.g3r4ki_venvs
 fi
 
 mkdir -p "$PYTHON_VENV_BASE"
@@ -86,17 +104,25 @@ check_requirements() {
     echo "All requirements met."
 }
 
-# Function to check and install python version using pyenv
-check_and_install_python_version() {
-    local required_version=$1
-    echo "Checking Python version $required_version with pyenv..."
-
-    if ! pyenv versions --bare | grep -q "^${required_version}$"; then
-        echo "Python $required_version is not installed. Installing..."
-        pyenv install "$required_version"
-    else
-        echo "Python $required_version is already installed."
+# Function to find python3.12 executable path
+find_python312() {
+    # Try pyenv to find python3.12 path first
+    if command -v pyenv &> /dev/null; then
+        local pyenv_prefix
+        pyenv_prefix=$(pyenv prefix 3.12.0 2>/dev/null || true)
+        if [ -n "$pyenv_prefix" ]; then
+            echo "$pyenv_prefix/bin/python"
+            return
+        fi
     fi
+
+    # Then try system python3.12
+    if command -v python3.12 &> /dev/null && [ -x "$(command -v python3.12)" ]; then
+        echo "python3.12"
+        return
+    fi
+
+    echo ""
 }
 
 # Function to setup python virtual environment for a component
@@ -108,9 +134,8 @@ setup_python_venv() {
         echo "Python virtual environment already exists at $venv_path, reusing it."
     else
         echo "Creating Python virtual environment at $venv_path with Python $python_version..."
-        pyenv shell "$python_version"
-        pyenv which python
-        pyenv exec python -m venv "$venv_path"
+        echo "Running command: $python_version -m venv \"$venv_path\""
+        $python_version -m venv "$venv_path"
     fi
 }
 
@@ -142,6 +167,19 @@ setup_llama_cpp() {
         echo "Cloning llama.cpp repository..."
         git clone https://github.com/ggerganov/llama.cpp.git "$LLAMA_CPP_DIR"
         cd "$LLAMA_CPP_DIR"
+    fi
+
+    # Check if requirements directory and original requirements file exist
+    if [ ! -d "$LLAMA_CPP_DIR/requirements" ]; then
+        echo "Error: requirements directory not found in $LLAMA_CPP_DIR."
+        echo "Please ensure the llama.cpp repository is cloned correctly."
+        exit 1
+    fi
+
+    if [ ! -f "$LLAMA_CPP_DIR/requirements/requirements-convert_legacy_llama.txt" ]; then
+        echo "Error: requirements-convert_legacy_llama.txt not found in $LLAMA_CPP_DIR/requirements."
+        echo "Please ensure the llama.cpp repository is complete."
+        exit 1
     fi
 
     # Create a patched requirements file with torch version updated
@@ -198,14 +236,36 @@ setup_vllm() {
     echo
     echo "Setting up vLLM..."
 
-    local required_python_version="3.12.0"
-    local venv_path="$PYTHON_VENV_BASE/vllm"
+    # Remember old python
+    OLD_PYTHON=$(which python3)
 
-    check_and_install_python_version "$required_python_version"
-    setup_python_venv "$venv_path" "$required_python_version"
-    activate_python_venv "$venv_path"
+    # Ensure Python 3.12 is installed via pyenv
+    if pyenv versions --bare | grep -q "^3.12.0$"; then
+        echo "Python 3.12.0 already installed via pyenv, skipping installation."
+    else
+        echo "Installing Python 3.12.0 via pyenv..."
+        pyenv install 3.12.0
+    fi
 
-    echo "Python version in virtual environment: $(python --version)"
+    # Determine python3.12 path
+    PYTHON312=$(pyenv prefix 3.12.0)/bin/python3.12
+    if [ ! -x "$PYTHON312" ]; then
+        echo "Error: python3.12 not found after pyenv install"; exit 1
+    fi
+
+    # Create and activate virtual environment
+    VENV_PATH="$PYTHON_VENV_BASE/vllm"
+    if [ -d "$VENV_PATH" ]; then
+        echo "Python virtual environment for vLLM already exists at $VENV_PATH, reusing it."
+    else
+        echo "Creating venv for vLLM at $VENV_PATH using Python 3.12"
+        "$PYTHON312" -m venv "$VENV_PATH"
+    fi
+    source "$VENV_PATH/bin/activate"
+    echo "Activated venv: $(which python) --version"
+
+    # Ensure vendor directory exists
+    mkdir -p "$(dirname "$VLLM_DIR")"
 
     # Clone or update repository
     if [ -d "$VLLM_DIR" ]; then
@@ -218,33 +278,50 @@ setup_vllm() {
         cd "$VLLM_DIR"
     fi
 
-    # Upgrade pip in the virtual environment
-    echo "Upgrading pip in the virtual environment..."
+    # Upgrade pip in the virtual environment only if needed
+    PIP_VERSION_BEFORE=$(pip --version | awk '{print $2}')
     pip install --upgrade pip
+    PIP_VERSION_AFTER=$(pip --version | awk '{print $2}')
+    if [ "$PIP_VERSION_BEFORE" = "$PIP_VERSION_AFTER" ]; then
+        echo "pip is already up to date."
+    else
+        echo "pip upgraded from $PIP_VERSION_BEFORE to $PIP_VERSION_AFTER."
+    fi
 
-    # Install vLLM
-    echo "Installing vLLM..."
-    pip install -e .
+    # Check if vLLM is already installed in editable mode
+    if pip show vllm &> /dev/null; then
+        echo "vLLM is already installed in the virtual environment, skipping reinstall."
+    else
+        echo "Installing vLLM..."
+        pip install -e .
+    fi
 
     # Create model directory
     mkdir -p "$MODELS_DIR/vllm"
 
-    echo "Do you want to download a small test model for vLLM? (y/n)"
-    read -r download_model
-
-    if [[ "$download_model" == "y" || "$download_model" == "Y" ]]; then
-        echo "Downloading a small test model for vLLM..."
-        wget -O "$MODELS_DIR/vllm/test-model.bin" https://huggingface.co/vllm/test-model/resolve/main/test-model.bin
-        echo "Test model downloaded to $MODELS_DIR/vllm/"
+    MODEL_FILE="$MODELS_DIR/vllm/test-model.bin"
+    if [ -f "$MODEL_FILE" ]; then
+        echo "Test model already exists at $MODEL_FILE, skipping download."
     else
-        echo "Skipping model download. You will need to download models manually."
-        echo "Models should be placed in: $MODELS_DIR/vllm/"
-        echo "You can download models from: https://huggingface.co/vllm"
+        echo "Do you want to download a small test model for vLLM? (y/n)"
+        read -r download_model
+
+        if [[ "$download_model" == "y" || "$download_model" == "Y" ]]; then
+            echo "Downloading a small test model for vLLM..."
+            wget -O "$MODEL_FILE" https://huggingface.co/vllm/test-model/resolve/main/test-model.bin
+            echo "Test model downloaded to $MODELS_DIR/vllm/"
+        else
+            echo "Skipping model download. You will need to download models manually."
+            echo "Models should be placed in: $MODELS_DIR/vllm/"
+            echo "You can download models from: https://huggingface.co/vllm"
+        fi
     fi
 
-    deactivate_python_venv
-
     echo "vLLM setup complete."
+
+    # Deactivate venv and restore python
+    deactivate
+    echo "Restored Python to: $OLD_PYTHON --version" && $OLD_PYTHON --version
 }
 
 # Setup GPT4All
@@ -252,12 +329,8 @@ setup_gpt4all() {
     echo
     echo "Setting up GPT4All..."
 
-    local required_python_version="3.10.0"
-    local venv_path="$PYTHON_VENV_BASE/gpt4all"
-
-    check_and_install_python_version "$required_python_version"
-    setup_python_venv "$venv_path" "$required_python_version"
-    activate_python_venv "$venv_path"
+    # Use same environment as setup_llama_cpp (system python3)
+    # No separate venv or python version management here
 
     # Create directories
     mkdir -p "$GPT4ALL_DIR"
@@ -279,20 +352,23 @@ setup_gpt4all() {
         chmod +x "$GPT4ALL_DIR/gpt4all-cli"
     fi
 
-    echo "Do you want to download a test model for GPT4All? (y/n)"
-    read -r download_model
-
-    if [[ "$download_model" == "y" || "$download_model" == "Y" ]]; then
-        echo "Downloading a small GPT4All model for testing..."
-        wget -O "$MODELS_DIR/gpt4all/ggml-gpt4all-j-v1.3-groovy.bin" https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin
-        echo "Test model downloaded to $MODELS_DIR/gpt4all/"
+    MODEL_FILE="$MODELS_DIR/gpt4all/ggml-gpt4all-j-v1.3-groovy.bin"
+    if [ -f "$MODEL_FILE" ]; then
+        echo "Test model already exists at $MODEL_FILE, skipping download."
     else
-        echo "Skipping model download. You will need to download models manually."
-        echo "Models should be placed in: $MODELS_DIR/gpt4all/"
-        echo "You can download models from: https://gpt4all.io/models/models.json"
-    fi
+        echo "Do you want to download a test model for GPT4All? (y/n)"
+        read -r download_model
 
-    deactivate_python_venv
+        if [[ "$download_model" == "y" || "$download_model" == "Y" ]]; then
+            echo "Downloading a small GPT4All model for testing..."
+            wget -O "$MODEL_FILE" https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin
+            echo "Test model downloaded to $MODELS_DIR/gpt4all/"
+        else
+            echo "Skipping model download. You will need to download models manually."
+            echo "Models should be placed in: $MODELS_DIR/gpt4all/"
+            echo "You can download models from: https://gpt4all.io/models/models.json"
+        fi
+    fi
 
     echo "GPT4All setup complete."
 }
@@ -302,6 +378,8 @@ check_requirements
 setup_llama_cpp
 setup_vllm
 setup_gpt4all
+
+
 
 echo
 echo "LLM components setup complete!"

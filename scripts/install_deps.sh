@@ -3,9 +3,16 @@
 
 set -e
 
+# Check if running as root, if not re-run with sudo
+if [ "$EUID" -ne 0 ]; then
+  echo "This script must be run as root. Re-running with sudo..."
+  exec sudo bash "$0" "$@"
+fi
+
 echo "G3r4ki - Installing system dependencies"
 echo "======================================"
 echo
+
 
 # Check if running on Replit
 if [ -n "$REPL_ID" ]; then
@@ -38,8 +45,8 @@ if [ -n "$REPL_ID" ]; then
     mkdir -p ~/.local/share/g3r4ki/models/gpt4all
     mkdir -p ~/.cache/g3r4ki
     
-else
-    # Regular environment setup (non-Replit)
+else:
+    # Linux environment setup (non-Replit)
     # Detect OS
     if [ -f /etc/os-release ]; then
         . /etc/os-release
@@ -84,7 +91,7 @@ else
     if command -v nvidia-smi &> /dev/null; then
         echo "NVIDIA GPU detected, installing NVIDIA tools..."
         apt install -y nvidia-cuda-toolkit
-        
+
         # Check if CUDA is available
         if command -v nvcc &> /dev/null; then
             echo "CUDA toolkit installed successfully."
@@ -99,15 +106,23 @@ else
 
     # Create Python virtual environment
     echo "Setting up Python virtual environment..."
-    python3 -m venv ~/.g3r4ki_venv
+    VENV_PATH="$HOME/.g3r4ki_venvs/main"
+    if [ -d "$VENV_PATH" ]; then
+        echo "Python virtual environment $VENV_PATH already exists, skipping creation."
+    else
+        python3 -m venv "$VENV_PATH"
+    fi
+
+    # Install Python dependencies inside the virtual environment
+    echo "Installing Python dependencies inside the virtual environment..."
+    source "$VENV_PATH/bin/activate"
+    pip install --upgrade pip
+    deactivate
 
     # Add aliases to bashrc if they don't exist
     if ! grep -q "alias g3r4ki=" ~/.bashrc; then
         echo "" >> ~/.bashrc
         echo "# G3r4ki aliases" >> ~/.bashrc
-        echo "alias g3r4ki='source ~/.g3r4ki_venv/bin/activate && python3 $(pwd)/g3r4ki.py'" >> ~/.bashrc
-        echo "alias g3r4ki-activate='source ~/.g3r4ki_venv/bin/activate'" >> ~/.bashrc
-        echo "Added G3r4ki aliases to ~/.bashrc"
     fi
 fi
 
