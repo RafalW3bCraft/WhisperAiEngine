@@ -1,5 +1,5 @@
-<!-- GitAds-Verify: 3THOVSPD7499FQRDJHPV5E3R8J9AXUH9 -->
-
+## GitAds Sponsored
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=rafalw3bcraft/whisperaiengine@github)](https://gitads.dev/v1/ad-track?source=rafalw3bcraft/whisperaiengine@github)
 
 # G3r4ki - AI-Powered Cybersecurity Operations System
 
