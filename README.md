@@ -1,3 +1,6 @@
+<!-- GitAds-Verify: 3THOVSPD7499FQRDJHPV5E3R8J9AXUH9 -->
+
+
 # G3r4ki - AI-Powered Cybersecurity Operations System
 
 G3r4ki is an advanced AI-powered Linux cybersecurity platform that autonomously manages security operations through intelligent, multi-provider AI integration.
