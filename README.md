@@ -1,4 +1,3 @@
-<!-- GitAds-Verify: CN4RVJQ3G2HX13YG4TOYJUL1VZOCV3N3 -->
 # G3r4ki - AI-Powered Cybersecurity Operations System
 
 G3r4ki is an advanced AI-powered Linux cybersecurity platform that autonomously manages security operations through intelligent, multi-provider AI integration.
@@ -98,6 +97,9 @@ If you prefer manual setup, follow these steps:
    ```
 
 ### Additional Setup
+## GitAds Sponsored
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=rafalw3bcraft/whisperaiengine@github)](https://gitads.dev/v1/ad-track?source=rafalw3bcraft/whisperaiengine@github)
+
 
 - To install system dependencies separately, you can run:
   ```bash
