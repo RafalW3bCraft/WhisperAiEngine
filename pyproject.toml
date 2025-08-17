@@ -1,7 +1,8 @@
 [project]
-name = "repl-nix-workspace"
+name = "WhisperAiEngine"
 version = "0.1.0"
-description = "Add your description here"
+author = 'RafalW3bCraft"
+description = "G3r4ki is an advanced AI-powered Linux cybersecurity platform that autonomously manages security operations through intelligent, multi-provider AI integration."
 requires-python = ">=3.11"
 dependencies = [
     "anthropic>=0.50.0",
